@@ -44,10 +44,10 @@ def generate_clangd_files(wks: WorkspaceConfig):
         proj = wks.get_project(proj_name)
         
         # Get location property
-        location = proj.get_location(tokens)
+        location = proj.get_property("location")
         
         # Get project compile flags
-        compile_flags = proj.get_compile_flags(tokens)
+        compile_flags = proj.get_compile_flags()
         print(compile_flags)
 
 
@@ -206,7 +206,7 @@ if __name__ == "__main__":
             
             "bin" : "%{PRJ_DIR}/bin",
             
-            "includes" : [
+            "includeDirs" : [
                 "%{PRJ_DIR}/src"
             ],
             
