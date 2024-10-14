@@ -20,8 +20,10 @@ File generation can be controlled using a `.json` file containing information ab
         
 *   _PROJECTS:_
     *   Note that the names of the project properties can be anything. As long as they're listed in the "projects" property for the workspace, they'll be generated.
-    *   `"location"`    : string   ~ Specifies the working directory of the project, from which other paths are derived (e.g. "files" property). Can be accessed with "%{PROJ_DIR}" and will be interpreted by the parser
-    *   `"kind"`        : string   ~ Specifies the type of binary to be compiled. Can be any of the following:
+    *   `"location"`: string
+        >   Specifies the working directory of the project, from which other paths are derived (e.g. "files" property). Can be accessed with "%{PROJ_DIR}" and will be interpreted by the parser
+    *   `"kind"`: string
+        >   Specifies the type of binary to be compiled. Can be any of the following:
         *   `"console"`
             >   console app - directly executable.
         *   `"staticlib"`
