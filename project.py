@@ -91,18 +91,21 @@ class ProjectConfig(ConfObj):
     def gen_build_command(self) -> str:
         props = {
             "compiler" : self.get_property("compiler", "clang++"),
+            "flags" : "--std={}".format(self.get_property("cpp", "c++17")),
             "files" : self.get_files(),
             "output" : self.__get_output_name(),
             "includes" : self.__get_include_flags(),
             "linking" : self.__get_link_flags()
         }
         # format string
-        return "{compiler} {files} -o {output} {includes} {linking}".format(**props)
+        r = "{compiler} {flags} {files} -o {output} {includes} {linking}".format(**props)
+        r = r.replace("\n", " ")
+        
+        return r
     
     def write_build_file(self):
         # Get the build command
         command = self.gen_build_command()
-        command = command.replace("\n", " ")
         # Create build script file
         f = open("{}/clang_build.sh".format(self.location), "w")
         # Write

@@ -24,6 +24,8 @@ def generate_build_script(wks: WorkspaceConfig):
     build_commands = []
     for proj in wks.get_projects():
         proj.write_build_file()
+        
+    # Create workspace build file (runs each project's build file in dependency order)
     
     print("TODO: Implement build script generation...")
 

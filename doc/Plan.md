@@ -7,7 +7,7 @@
 
 
 **Clangd LSP `.clangd` file**
-*   I'm honestly not super familiar with how this works, but i _think_ this informs the `clangd` LSP of the includes, config, etc. that the user specifies.
+*   I'm honestly not super familiar with how this works, but I _think_ this informs the `clangd` LSP of the includes, config, etc. that the user specifies.
 *   This is important because otherwise, the LSP thinks that the includes don't exist and shows errors in the code editor.
 
 ### Design
