@@ -2,7 +2,7 @@
 
 import json
 
-from util import FormattedDocument, get_pwd
+from util import FormattedDocument, get_pwd, detokenize
 from workspace import WorkspaceConfig
 from project import ProjectConfig
 
@@ -18,37 +18,65 @@ def get_json_object(json_string: str):
     return r
 
 def generate_build_script(wks: WorkspaceConfig):
-    # Keep track of final script
-    script = "" # empty string for now
-        
-    # Return finalized script
-    return script
+    ### GENERATES BUILD AND RUN SCRIPTS
+    print("TODO: Implement build script generation...")
 
 
 def generate_clangd_files(wks: WorkspaceConfig):
     ### Generates ".clangd" files for both the workspace and all projects specified in workspace
     
     # Get workspace working directory
-    wks_dir = get_pwd() + wks.get_property("location")
-    
-    # Setup tokens replacement table
-    tokens = {
-        "%{WKS_DIR}" : wks_dir,
-    }
+    wks_dir = wks.get_property("location")
+    # Replace any "." with the pwd
+    wks_dir = wks_dir.replace(".", get_pwd())
     
     # Get projects array
     projects = wks.get_property("projects")
+    strings = []
     # Generate configurations for each project
     for proj_name in projects:
+        # Setup tokens replacement table
+        tokens = {
+            "WKS_DIR" : wks_dir,
+        }
+        
         # Try getting the project as an object from its name
         proj = wks.get_project(proj_name)
-        
         # Get location property
         location = proj.get_property("location")
+        location = detokenize(location, tokens)
+        # Add project location to the token table
+        tokens["PRJ_DIR"] = location
         
         # Get project compile flags
-        compile_flags = proj.get_compile_flags()
-        print(compile_flags)
+        compile_flags = detokenize(proj.get_compile_flags(), tokens)
+        strings.append(compile_flags)
+    return strings
+
+# Generate build script from json string
+def generate_from_string(json_str: str):
+    # Decode json parsed string to a WorkspaceConfig object
+    workspace = WorkspaceConfig(get_json_object(json_str))
+    
+    # Generate the build script
+    script = generate_build_script(workspace)
+    
+    # Generate ".clangd" files
+    generate_clangd_files(workspace)
+    
+    # Output the script to console
+    print(script)
+    
+def generate_from_file(filepath: str):
+    # Try opening the file
+    try:
+        f = open(filepath)
+        generate_from_string(f.read())
+    except FileNotFoundError:
+        log_err("No such file exists: '{}'".format(filepath), ERROR.FILE)
+    except PermissionError:
+        log_err("Permission denied: '{}'".format(filepath), ERROR.FILE)
+        
 
 
 
@@ -152,30 +180,7 @@ def help_menu(submenu = ""):
 ##=> DRIVER CODE
 # ------------------------------------------- #
 
-# Generate build script from json string
-def generate_from_string(json_str: str):
-    # Decode json parsed string to a WorkspaceConfig object
-    workspace = WorkspaceConfig(get_json_object(json_str))
-    
-    # Generate the build script
-    script = generate_build_script(workspace)
-    
-    # Generate ".clangd" files
-    generate_clangd_files(workspace)
-    
-    # Output the script to console
-    print(script)
-    
-def generate_from_file(filepath: str):
-    # Try opening the file
-    try:
-        f = open(filepath)
-        generate_from_string(f.read())
-    except FileNotFoundError:
-        log_err("No such file exists", ERROR.FILE)
-    except PermissionError:
-        log_err("Permission denied", ERROR.FILE)
-        
+
 def gen_driver(arguments: list[str], options: list[tuple[str]]):
     # Check options
     for op in options:

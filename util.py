@@ -72,3 +72,12 @@ class FormattedDocument:
     def read(self):
         return "\n".join(self.line_buffer)
         
+        
+# Token removal
+def detokenize(string: str, tokens: dict):
+    """ string: the string you want to detokenize.\
+        tokens: dictionary - keys are the tokens, values are what they should be replaced with
+    """
+    for k, v in tokens.items():
+        string = string.replace("%{*}".replace("*", k), v)
+    return string
