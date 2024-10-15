@@ -3,8 +3,8 @@
 import json
 
 from util import FormattedDocument, get_pwd, detokenize
+from stat_paths import Paths
 from workspace import WorkspaceConfig
-from project import ProjectConfig
 
 
 # ------------------------------------------- #
@@ -19,6 +19,12 @@ def get_json_object(json_string: str):
 
 def generate_build_script(wks: WorkspaceConfig):
     ### GENERATES BUILD AND RUN SCRIPTS
+    
+    # For each project, generate build commands
+    build_commands = []
+    for proj in wks.get_projects():
+        proj.write_build_file()
+    
     print("TODO: Implement build script generation...")
 
 
@@ -35,21 +41,14 @@ def generate_clangd_files(wks: WorkspaceConfig):
     strings = []
     # Generate configurations for each project
     for proj_name in projects:
-        # Setup tokens replacement table
-        tokens = {
-            "WKS_DIR" : wks_dir,
-        }
-        
         # Try getting the project as an object from its name
         proj = wks.get_project(proj_name)
         # Get location property
         location = proj.get_property("location")
-        location = detokenize(location, tokens)
-        # Add project location to the token table
-        tokens["PRJ_DIR"] = location
+        location = detokenize(location)
         
         # Get project compile flags
-        compile_flags = detokenize(proj.get_compile_flags(), tokens)
+        compile_flags = detokenize(proj.get_clangd(), location)
         strings.append(compile_flags)
     return strings
 
@@ -57,6 +56,10 @@ def generate_clangd_files(wks: WorkspaceConfig):
 def generate_from_string(json_str: str):
     # Decode json parsed string to a WorkspaceConfig object
     workspace = WorkspaceConfig(get_json_object(json_str))
+    
+    # Get project binary directories and add them to Paths
+    for proj in workspace.get_projects():
+        Paths.BIN_PATHS[proj.name] = proj.get_bin_dir()
     
     # Generate the build script
     script = generate_build_script(workspace)
@@ -201,7 +204,7 @@ if __name__ == "__main__":
     example_json = """\
     {
         "projects" : ["myProj1"],
-        "location" : "./my-epic-workspace",
+        "location" : ".",
         
         "myProj1" : {
             "compiler" : "clang++",

@@ -3,6 +3,8 @@
 import os
 import subprocess
 
+from stat_paths import Paths
+
 # ------------------------------------------- #
 ##=> MISCELLANEOUS
 # ------------------------------------------- #
@@ -74,10 +76,12 @@ class FormattedDocument:
         
         
 # Token removal
-def detokenize(string: str, tokens: dict):
-    """ string: the string you want to detokenize.\
+def detokenize(string: str, proj_location: str = ""):
+    """ string: the string you want to detokenize.
         tokens: dictionary - keys are the tokens, values are what they should be replaced with
     """
+    tokens = Paths.PATHS.copy()
+    tokens["PRJ_DIR"] = proj_location
     for k, v in tokens.items():
         string = string.replace("%{*}".replace("*", k), v)
     return string
